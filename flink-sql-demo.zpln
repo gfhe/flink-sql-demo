@@ -1,0 +1,315 @@
+﻿{
+ "paragraphs": [
+  {
+   "user": "anonymous",
+   "config": {
+    "colWidth": 12,
+    "fontSize": 9,
+    "enabled": true,
+    "results": {},
+    "editorSetting": {
+     "language": "scala",
+     "editOnDblClick": false,
+     "completionKey": "TAB",
+     "completionSupport": true
+    },
+    "editorMode": "ace/mode/scala",
+    "title": true
+   },
+   "settings": {
+    "params": {},
+    "forms": {}
+   },
+   "apps": [],
+   "jobName": "paragraph_1563110258183_1613653816",
+   "id": "20190714-161738_1950435706",
+   "dateCreated": "2019-07-14T16:17:38+0300",
+   "status": "ERROR",
+   "progressUpdateIntervalMs": 500,
+   "focus": true,
+   "$$hashKey": "object:394",
+   "text": "%flink\n\nval data = benv.fromElements(\"hello world\", \"hello flink\", \"hello hadoop\")\n\ndata.flatMap(line => line.split(\"\\\\s\"))\n  .map(w => (w, 1))\n  .groupBy(0)\n  .sum(1)\n  .print()\n",
+   "dateStarted": "2023-01-10 11:26:53.395",
+   "dateUpdated": "2023-01-10 11:26:53.582",
+   "dateFinished": "2023-01-10 11:26:53.582",
+   "title": "WordCount demo",
+   "results": {
+    "code": "ERROR",
+    "msg": [
+     {
+      "type": "TEXT",
+      "data": "java.lang.IndexOutOfBoundsException: Index: 0, Size: 0\n\tat java.util.ArrayList.rangeCheck(ArrayList.java:659)\n\tat java.util.ArrayList.get(ArrayList.java:435)\n\tat org.apache.zeppelin.interpreter.launcher.FlinkInterpreterLauncher.chooseFlinkAppJar(FlinkInterpreterLauncher.java:148)\n\tat org.apache.zeppelin.interpreter.launcher.FlinkInterpreterLauncher.buildEnvFromProperties(FlinkInterpreterLauncher.java:84)\n\tat org.apache.zeppelin.interpreter.launcher.StandardInterpreterLauncher.launchDirectly(StandardInterpreterLauncher.java:77)\n\tat org.apache.zeppelin.interpreter.launcher.InterpreterLauncher.launch(InterpreterLauncher.java:110)\n\tat org.apache.zeppelin.interpreter.InterpreterSetting.createInterpreterProcess(InterpreterSetting.java:856)\n\tat org.apache.zeppelin.interpreter.ManagedInterpreterGroup.getOrCreateInterpreterProcess(ManagedInterpreterGroup.java:66)\n\tat org.apache.zeppelin.interpreter.remote.RemoteInterpreter.getOrCreateInterpreterProcess(RemoteInterpreter.java:104)\n\tat org.apache.zeppelin.interpreter.remote.RemoteInterpreter.internal_create(RemoteInterpreter.java:154)\n\tat org.apache.zeppelin.interpreter.remote.RemoteInterpreter.open(RemoteInterpreter.java:126)\n\tat org.apache.zeppelin.interpreter.remote.RemoteInterpreter.getFormType(RemoteInterpreter.java:271)\n\tat org.apache.zeppelin.notebook.Paragraph.jobRun(Paragraph.java:438)\n\tat org.apache.zeppelin.notebook.Paragraph.jobRun(Paragraph.java:69)\n\tat org.apache.zeppelin.scheduler.Job.run(Job.java:172)\n\tat org.apache.zeppelin.scheduler.AbstractScheduler.runJob(AbstractScheduler.java:132)\n\tat org.apache.zeppelin.scheduler.RemoteScheduler$JobRunner.run(RemoteScheduler.java:182)\n\tat java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)\n\tat java.util.concurrent.FutureTask.run(FutureTask.java:266)\n\tat java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.access$201(ScheduledThreadPoolExecutor.java:180)\n\tat java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:293)\n\tat java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)\n\tat java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)\n\tat java.lang.Thread.run(Thread.java:748)\n"
+     }
+    ]
+   }
+  },
+  {
+   "settings": {
+    "params": {},
+    "forms": {}
+   },
+   "apps": [],
+   "status": "FINISHED",
+   "text": "%flink.ssql\n\nDROP TABLE IF EXISTS mock_data_20_billion;\n\n-- datagen 用法参考：https://nightlies.apache.org/flink/flink-docs-master/zh/docs/connectors/table/datagen/\n\n-- datagen：生成200亿的模拟数据\n--      id: 范围[1,20000000000]\n--      pt: 当前时间前10天，时间戳（精确到ms）差为3600*24*10*1000 = 864,000,000；\n--      author.first_name: 长度为3字符;\n--      author.last_name 长度为 10 字符；\n--      title: 长度为 50 字符；\n--      content: 长度为 5000 字符；\n--      num_like: 范围[0, 10000]\n\ncreate table mock_data_20_billion(\n    id  BIGINT PRIMARY KEY,\n    pt  TIMESTAMP(3),\n    author  ROW<first_name STRING, last_name STRING>,\n    title   STRING,\n    content STRING,\n    num_like    BIGINT\n) WITH (\n    'connector' = 'datagen',\n    'number-of-rows' = '20',\n    'rows-per-second' = '2',\n    'fields.id.kind' = 'sequence',\n    'fields.id.start' = '1',\n    'fields.id.end' = '20000000000',\n    -- 'fields.#.max-past' = '864000000', max-part仅在 1.16.0 等新版本的flink中支持。\n    'fields.author.first_name.length' = '3',\n    'fields.author.last_name.length'='10',\n    'fields.title.length' = '50',\n    'fields.content.length' = '5000',\n    'fields.num_like.min' = '0',\n    'fields.num_like.max' = '10000'\n);",
+   "id": "",
+   "dateCreated": "2023-01-06 10:38:13.423",
+   "config": {
+    "title": true
+   },
+   "title": "定义source table - datagen 生成模拟数据表",
+   "dateStarted": "2023-01-06 16:04:05.506",
+   "dateUpdated": "2023-01-06 16:04:06.486",
+   "dateFinished": "2023-01-06 16:04:06.485",
+   "results": {
+    "code": "SUCCESS",
+    "msg": [
+     {
+      "type": "TEXT",
+      "data": "Table has been dropped.\nTable has been created.\n"
+     }
+    ]
+   }
+  },
+  {
+   "settings": {
+    "params": {
+     "bdtMeta": {
+      "inlay": {}
+     }
+    },
+    "forms": {}
+   },
+   "apps": [],
+   "status": "ERROR",
+   "text": "%flink.ssql\n\n-- 修改source table的 number-of-rows 为20条，预览和测试生成的数据是否符合预期\n\ncreate temporary view IF NOT EXISTS tmp_view \nAS \n    select * from mock_data_20_billion;\n\n select count(id) as num from tmp_view limit 10;",
+   "id": "",
+   "dateCreated": "2023-01-06 15:37:27.245",
+   "config": {
+    "title": true,
+    "tableHide": false
+   },
+   "title": "测试 datagen 生成的数据",
+   "dateStarted": "2023-01-06 16:14:17.270",
+   "dateUpdated": "2023-01-06 16:14:35.996",
+   "dateFinished": "2023-01-06 16:14:35.996",
+   "results": {
+    "code": "ERROR",
+    "msg": [
+     {
+      "type": "TABLE",
+      "data": "num\n"
+     },
+     {
+      "type": "TEXT",
+      "data": "Fail to run sql command: select count(id) as num from tmp_view limit 10\njava.io.IOException: Fail to run stream sql job\n\tat org.apache.zeppelin.flink.sql.AbstractStreamSqlJob.run(AbstractStreamSqlJob.java:177)\n\tat org.apache.zeppelin.flink.sql.AbstractStreamSqlJob.run(AbstractStreamSqlJob.java:109)\n\tat org.apache.zeppelin.flink.FlinkStreamSqlInterpreter.callInnerSelect(FlinkStreamSqlInterpreter.java:86)\n\tat org.apache.zeppelin.flink.FlinkSqlInterpreter.callSelect(FlinkSqlInterpreter.java:494)\n\tat org.apache.zeppelin.flink.FlinkSqlInterpreter.callCommand(FlinkSqlInterpreter.java:257)\n\tat org.apache.zeppelin.flink.FlinkSqlInterpreter.runSqlList(FlinkSqlInterpreter.java:151)\n\tat org.apache.zeppelin.flink.FlinkSqlInterpreter.internalInterpret(FlinkSqlInterpreter.java:109)\n\tat org.apache.zeppelin.interpreter.AbstractInterpreter.interpret(AbstractInterpreter.java:55)\n\tat org.apache.zeppelin.interpreter.LazyOpenInterpreter.interpret(LazyOpenInterpreter.java:110)\n\tat org.apache.zeppelin.interpreter.remote.RemoteInterpreterServer$InterpretJob.jobRun(RemoteInterpreterServer.java:860)\n\tat org.apache.zeppelin.interpreter.remote.RemoteInterpreterServer$InterpretJob.jobRun(RemoteInterpreterServer.java:752)\n\tat org.apache.zeppelin.scheduler.Job.run(Job.java:172)\n\tat org.apache.zeppelin.scheduler.AbstractScheduler.runJob(AbstractScheduler.java:132)\n\tat org.apache.zeppelin.scheduler.ParallelScheduler.lambda$runJobInScheduler$0(ParallelScheduler.java:46)\n\tat java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)\n\tat java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)\n\tat java.lang.Thread.run(Thread.java:748)\nCaused by: org.apache.flink.client.program.ProgramInvocationException: Job failed (JobID: a6fcbdaa2feb6eed458a8e318a46136e)\n\tat org.apache.flink.client.deployment.ClusterClientJobClientAdapter.lambda$null$6(ClusterClientJobClientAdapter.java:125)\n\tat java.util.concurrent.CompletableFuture.uniApply(CompletableFuture.java:616)\n\tat java.util.concurrent.CompletableFuture$UniApply.tryFire(CompletableFuture.java:591)\n\tat java.util.concurrent.CompletableFuture.postComplete(CompletableFuture.java:488)\n\tat java.util.concurrent.CompletableFuture.complete(CompletableFuture.java:1975)\n\tat org.apache.flink.runtime.concurrent.FutureUtils.lambda$retryOperationWithDelay$9(FutureUtils.java:394)\n\tat java.util.concurrent.CompletableFuture.uniWhenComplete(CompletableFuture.java:774)\n\tat java.util.concurrent.CompletableFuture$UniWhenComplete.tryFire(CompletableFuture.java:750)\n\tat java.util.concurrent.CompletableFuture.postComplete(CompletableFuture.java:488)\n\tat java.util.concurrent.CompletableFuture.complete(CompletableFuture.java:1975)\n\tat org.apache.flink.client.program.rest.RestClusterClient.lambda$pollResourceAsync$24(RestClusterClient.java:670)\n\tat java.util.concurrent.CompletableFuture.uniWhenComplete(CompletableFuture.java:774)\n\tat java.util.concurrent.CompletableFuture$UniWhenComplete.tryFire(CompletableFuture.java:750)\n\tat java.util.concurrent.CompletableFuture.postComplete(CompletableFuture.java:488)\n\tat java.util.concurrent.CompletableFuture.complete(CompletableFuture.java:1975)\n\tat org.apache.flink.runtime.concurrent.FutureUtils.lambda$retryOperationWithDelay$9(FutureUtils.java:394)\n\tat java.util.concurrent.CompletableFuture.uniWhenComplete(CompletableFuture.java:774)\n\tat java.util.concurrent.CompletableFuture$UniWhenComplete.tryFire(CompletableFuture.java:750)\n\tat java.util.concurrent.CompletableFuture.postComplete(CompletableFuture.java:488)\n\tat java.util.concurrent.CompletableFuture.postFire(CompletableFuture.java:575)\n\tat java.util.concurrent.CompletableFuture$UniCompose.tryFire(CompletableFuture.java:943)\n\tat java.util.concurrent.CompletableFuture$Completion.run(CompletableFuture.java:456)\n\t... 3 more\nCaused by: org.apache.flink.runtime.client.JobExecutionException: Job execution failed.\n\tat org.apache.flink.runtime.jobmaster.JobResult.toJobExecutionResult(JobResult.java:144)\n\tat org.apache.flink.client.deployment.ClusterClientJobClientAdapter.lambda$null$6(ClusterClientJobClientAdapter.java:123)\n\t... 24 more\nCaused by: org.apache.flink.runtime.JobException: Recovery is suppressed by NoRestartBackoffTimeStrategy\n\tat org.apache.flink.runtime.executiongraph.failover.flip1.ExecutionFailureHandler.handleFailure(ExecutionFailureHandler.java:138)\n\tat org.apache.flink.runtime.executiongraph.failover.flip1.ExecutionFailureHandler.getFailureHandlingResult(ExecutionFailureHandler.java:82)\n\tat org.apache.flink.runtime.scheduler.DefaultScheduler.handleTaskFailure(DefaultScheduler.java:207)\n\tat org.apache.flink.runtime.scheduler.DefaultScheduler.maybeHandleTaskFailure(DefaultScheduler.java:197)\n\tat org.apache.flink.runtime.scheduler.DefaultScheduler.updateTaskExecutionStateInternal(DefaultScheduler.java:188)\n\tat org.apache.flink.runtime.scheduler.SchedulerBase.updateTaskExecutionState(SchedulerBase.java:677)\n\tat org.apache.flink.runtime.scheduler.SchedulerNG.updateTaskExecutionState(SchedulerNG.java:79)\n\tat org.apache.flink.runtime.jobmaster.JobMaster.updateTaskExecutionState(JobMaster.java:435)\n\tat sun.reflect.GeneratedMethodAccessor448.invoke(Unknown Source)\n\tat sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)\n\tat java.lang.reflect.Method.invoke(Method.java:498)\n\tat org.apache.flink.runtime.rpc.akka.AkkaRpcActor.handleRpcInvocation(AkkaRpcActor.java:305)\n\tat org.apache.flink.runtime.rpc.akka.AkkaRpcActor.handleRpcMessage(AkkaRpcActor.java:212)\n\tat org.apache.flink.runtime.rpc.akka.FencedAkkaRpcActor.handleRpcMessage(FencedAkkaRpcActor.java:77)\n\tat org.apache.flink.runtime.rpc.akka.AkkaRpcActor.handleMessage(AkkaRpcActor.java:158)\n\tat akka.japi.pf.UnitCaseStatement.apply(CaseStatements.scala:26)\n\tat akka.japi.pf.UnitCaseStatement.apply(CaseStatements.scala:21)\n\tat scala.PartialFunction.applyOrElse(PartialFunction.scala:123)\n\tat scala.PartialFunction.applyOrElse$(PartialFunction.scala:122)\n\tat akka.japi.pf.UnitCaseStatement.applyOrElse(CaseStatements.scala:21)\n\tat scala.PartialFunction$OrElse.applyOrElse(PartialFunction.scala:171)\n\tat scala.PartialFunction$OrElse.applyOrElse(PartialFunction.scala:172)\n\tat scala.PartialFunction$OrElse.applyOrElse(PartialFunction.scala:172)\n\tat akka.actor.Actor.aroundReceive(Actor.scala:517)\n\tat akka.actor.Actor.aroundReceive$(Actor.scala:515)\n\tat akka.actor.AbstractActor.aroundReceive(AbstractActor.scala:225)\n\tat akka.actor.ActorCell.receiveMessage(ActorCell.scala:592)\n\tat akka.actor.ActorCell.invoke(ActorCell.scala:561)\n\tat akka.dispatch.Mailbox.processMailbox(Mailbox.scala:258)\n\tat akka.dispatch.Mailbox.run(Mailbox.scala:225)\n\tat akka.dispatch.Mailbox.exec(Mailbox.scala:235)\n\tat akka.dispatch.forkjoin.ForkJoinTask.doExec(ForkJoinTask.java:260)\n\tat akka.dispatch.forkjoin.ForkJoinPool$WorkQueue.runTask(ForkJoinPool.java:1339)\n\tat akka.dispatch.forkjoin.ForkJoinPool.runWorker(ForkJoinPool.java:1979)\n\tat akka.dispatch.forkjoin.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:107)\nCaused by: java.io.IOException: Cannot get back the stream while opening connection to client at /172.17.0.3:46879\n\tat org.apache.flink.streaming.experimental.CollectSink.open(CollectSink.java:88)\n\tat org.apache.flink.api.common.functions.util.FunctionUtils.openFunction(FunctionUtils.java:34)\n\tat org.apache.flink.streaming.api.operators.AbstractUdfStreamOperator.open(AbstractUdfStreamOperator.java:102)\n\tat org.apache.flink.streaming.api.operators.StreamSink.open(StreamSink.java:46)\n\tat org.apache.flink.streaming.runtime.tasks.OperatorChain.initializeStateAndOpenOperators(OperatorChain.java:437)\n\tat org.apache.flink.streaming.runtime.tasks.StreamTask.restoreGates(StreamTask.java:582)\n\tat org.apache.flink.streaming.runtime.tasks.StreamTaskActionExecutor$1.call(StreamTaskActionExecutor.java:55)\n\tat org.apache.flink.streaming.runtime.tasks.StreamTask.executeRestore(StreamTask.java:562)\n\tat org.apache.flink.streaming.runtime.tasks.StreamTask.runWithCleanUpOnFail(StreamTask.java:647)\n\tat org.apache.flink.streaming.runtime.tasks.StreamTask.restore(StreamTask.java:537)\n\tat org.apache.flink.runtime.taskmanager.Task.doRun(Task.java:759)\n\tat org.apache.flink.runtime.taskmanager.Task.run(Task.java:566)\n\tat java.lang.Thread.run(Thread.java:748)\nCaused by: java.net.NoRouteToHostException: No route to host (Host unreachable)\n\tat java.net.PlainSocketImpl.socketConnect(Native Method)\n\tat java.net.AbstractPlainSocketImpl.doConnect(AbstractPlainSocketImpl.java:350)\n\tat java.net.AbstractPlainSocketImpl.connectToAddress(AbstractPlainSocketImpl.java:206)\n\tat java.net.AbstractPlainSocketImpl.connect(AbstractPlainSocketImpl.java:188)\n\tat java.net.SocksSocketImpl.connect(SocksSocketImpl.java:392)\n\tat java.net.Socket.connect(Socket.java:607)\n\tat java.net.Socket.connect(Socket.java:556)\n\tat java.net.Socket.<init>(Socket.java:452)\n\tat java.net.Socket.<init>(Socket.java:262)\n\tat org.apache.flink.streaming.experimental.CollectSink.open(CollectSink.java:82)\n\t... 12 more\n\n"
+     }
+    ]
+   }
+  },
+  {
+   "settings": {
+    "params": {},
+    "forms": {}
+   },
+   "apps": [],
+   "status": "FINISHED",
+   "text": "%md\n### 创建kafka topic\n创建kafka topic 并配置好partition 数量\n```shell\nkafka-topics  --bootstrap-server localhost:9092 --create --topic mock_data_20_billion --if-not-exists --partitions 16\n```",
+   "id": "",
+   "dateCreated": "2023-01-06 15:02:07.179",
+   "config": {},
+   "dateStarted": "2023-01-06 15:03:49.053",
+   "dateUpdated": "2023-01-06 15:03:49.170",
+   "dateFinished": "2023-01-06 15:03:49.170",
+   "results": {
+    "code": "SUCCESS",
+    "msg": [
+     {
+      "type": "HTML",
+      "data": "<div class=\"markdown-body\">\n<h3>创建kafka topic</h3>\n<p>创建kafka topic 并配置好partition 数量</p>\n<pre><code class=\"language-shell\">kafka-topics  --bootstrap-server localhost:9092 --create --topic mock_data_20_billion --if-not-exists --partitions 16\n</code></pre>\n\n</div>"
+     }
+    ]
+   }
+  },
+  {
+   "settings": {
+    "params": {},
+    "forms": {}
+   },
+   "apps": [],
+   "status": "FINISHED",
+   "text": "%flink.ssql\n\nDROP TABLE IF EXISTS sink_kafka;\n\n-- 定义输出table\n-- kafka connector 参考：https://nightlies.apache.org/flink/flink-docs-master/zh/docs/connectors/table/kafka/\n\ncreate table sink_kafka(\n    id  BIGINT,  -- json 不支持在sink table中使用primary key\n    pt  TIMESTAMP(3),\n    author  ROW<first_name STRING, last_name STRING>,\n    title   STRING,\n    content STRING,\n    num_like    BIGINT\n) WITH (\n    'connector' = 'kafka',\n    'topic' = 'mock_data_20_billion',\n    'properties.bootstrap.servers' = '172.22.0.36:9092',\n    'key.fields' = 'id', --列表格式为 'field1;field2'。\n    'key.format' = 'raw', --\n    'value.format' = 'json', -- 支持的格式参考：https://nightlies.apache.org/flink/flink-docs-master/zh/docs/connectors/table/formats/overview/\n\n    'sink.partitioner' = 'default', -- Flink partition 到 Kafka partition 的分区映射关系\n    'sink.semantic' = 'exactly-once', -- 精确一次语义\n    'sink.parallelism' = '8',\n    --  授权验证信息\n    'properties.security.protocol' = 'SASL_PLAINTEXT',\n    'properties.sasl.mechanism' = 'PLAIN', -- 还可以是SCRAM-SHA-256\n    'properties.sasl.jaas.config' = 'org.apache.kafka.common.security.plain.PlainLoginModule required username=\\\"username\\\" password=\\\"password\\\";'\n);",
+   "id": "",
+   "dateCreated": "2023-01-06 14:27:54.529",
+   "config": {
+    "title": true
+   },
+   "title": "定义Sink table - sink 到 kafka",
+   "dateStarted": "2023-01-06 15:34:18.498",
+   "dateUpdated": "2023-01-06 15:34:22.796",
+   "dateFinished": "2023-01-06 15:34:22.795",
+   "results": {
+    "code": "SUCCESS",
+    "msg": [
+     {
+      "type": "TEXT",
+      "data": "Table has been dropped.\nTable has been created.\n"
+     }
+    ]
+   }
+  },
+  {
+   "settings": {
+    "params": {},
+    "forms": {}
+   },
+   "apps": [],
+   "status": "ERROR",
+   "text": "%flink.ssql(job_name='write_mock_data_to_kafka')\ninsert into sink_kafka select id, pt, author, title, content, num_like from mock_data_20_billion;",
+   "id": "",
+   "dateCreated": "2023-01-06 14:49:06.814",
+   "config": {
+    "title": true
+   },
+   "title": "将mock 数据写入kafka",
+   "dateStarted": "2023-01-06 15:34:23.459",
+   "dateUpdated": "2023-01-06 15:35:13.022",
+   "dateFinished": "2023-01-06 15:35:13.022",
+   "results": {
+    "code": "ERROR",
+    "msg": [
+     {
+      "type": "ANGULAR",
+      "data": "<h1>Duration: {{duration}} </h1>\n"
+     },
+     {
+      "type": "TEXT",
+      "data": "Fail to run sql command: insert into sink_kafka select id, pt, author, title, content, num_like from mock_data_20_billion\njava.io.IOException: org.apache.flink.client.program.ProgramInvocationException: Job failed (JobID: 4eeecb880b62199cf65cc454a4d8d5b2)\n\tat org.apache.zeppelin.flink.FlinkSqlInterpreter.callInsertInto(FlinkSqlInterpreter.java:550)\n\tat org.apache.zeppelin.flink.FlinkStreamSqlInterpreter.callInsertInto(FlinkStreamSqlInterpreter.java:94)\n\tat org.apache.zeppelin.flink.FlinkSqlInterpreter.callCommand(FlinkSqlInterpreter.java:264)\n\tat org.apache.zeppelin.flink.FlinkSqlInterpreter.runSqlList(FlinkSqlInterpreter.java:151)\n\tat org.apache.zeppelin.flink.FlinkSqlInterpreter.internalInterpret(FlinkSqlInterpreter.java:109)\n\tat org.apache.zeppelin.interpreter.AbstractInterpreter.interpret(AbstractInterpreter.java:55)\n\tat org.apache.zeppelin.interpreter.LazyOpenInterpreter.interpret(LazyOpenInterpreter.java:110)\n\tat org.apache.zeppelin.interpreter.remote.RemoteInterpreterServer$InterpretJob.jobRun(RemoteInterpreterServer.java:860)\n\tat org.apache.zeppelin.interpreter.remote.RemoteInterpreterServer$InterpretJob.jobRun(RemoteInterpreterServer.java:752)\n\tat org.apache.zeppelin.scheduler.Job.run(Job.java:172)\n\tat org.apache.zeppelin.scheduler.AbstractScheduler.runJob(AbstractScheduler.java:132)\n\tat org.apache.zeppelin.scheduler.ParallelScheduler.lambda$runJobInScheduler$0(ParallelScheduler.java:46)\n\tat java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)\n\tat java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)\n\tat java.lang.Thread.run(Thread.java:748)\nCaused by: org.apache.flink.client.program.ProgramInvocationException: Job failed (JobID: 4eeecb880b62199cf65cc454a4d8d5b2)\n\tat org.apache.flink.client.deployment.ClusterClientJobClientAdapter.lambda$null$6(ClusterClientJobClientAdapter.java:125)\n\tat java.util.concurrent.CompletableFuture.uniApply(CompletableFuture.java:616)\n\tat java.util.concurrent.CompletableFuture$UniApply.tryFire(CompletableFuture.java:591)\n\tat java.util.concurrent.CompletableFuture.postComplete(CompletableFuture.java:488)\n\tat java.util.concurrent.CompletableFuture.complete(CompletableFuture.java:1975)\n\tat org.apache.flink.runtime.concurrent.FutureUtils.lambda$retryOperationWithDelay$9(FutureUtils.java:394)\n\tat java.util.concurrent.CompletableFuture.uniWhenComplete(CompletableFuture.java:774)\n\tat java.util.concurrent.CompletableFuture$UniWhenComplete.tryFire(CompletableFuture.java:750)\n\tat java.util.concurrent.CompletableFuture.postComplete(CompletableFuture.java:488)\n\tat java.util.concurrent.CompletableFuture.complete(CompletableFuture.java:1975)\n\tat org.apache.flink.client.program.rest.RestClusterClient.lambda$pollResourceAsync$24(RestClusterClient.java:670)\n\tat java.util.concurrent.CompletableFuture.uniWhenComplete(CompletableFuture.java:774)\n\tat java.util.concurrent.CompletableFuture$UniWhenComplete.tryFire(CompletableFuture.java:750)\n\tat java.util.concurrent.CompletableFuture.postComplete(CompletableFuture.java:488)\n\tat java.util.concurrent.CompletableFuture.complete(CompletableFuture.java:1975)\n\tat org.apache.flink.runtime.concurrent.FutureUtils.lambda$retryOperationWithDelay$9(FutureUtils.java:394)\n\tat java.util.concurrent.CompletableFuture.uniWhenComplete(CompletableFuture.java:774)\n\tat java.util.concurrent.CompletableFuture$UniWhenComplete.tryFire(CompletableFuture.java:750)\n\tat java.util.concurrent.CompletableFuture.postComplete(CompletableFuture.java:488)\n\tat java.util.concurrent.CompletableFuture.postFire(CompletableFuture.java:575)\n\tat java.util.concurrent.CompletableFuture$UniCompose.tryFire(CompletableFuture.java:943)\n\tat java.util.concurrent.CompletableFuture$Completion.run(CompletableFuture.java:456)\n\t... 3 more\nCaused by: org.apache.flink.runtime.client.JobExecutionException: Job execution failed.\n\tat org.apache.flink.runtime.jobmaster.JobResult.toJobExecutionResult(JobResult.java:144)\n\tat org.apache.flink.client.deployment.ClusterClientJobClientAdapter.lambda$null$6(ClusterClientJobClientAdapter.java:123)\n\t... 24 more\nCaused by: org.apache.flink.runtime.JobException: Recovery is suppressed by NoRestartBackoffTimeStrategy\n\tat org.apache.flink.runtime.executiongraph.failover.flip1.ExecutionFailureHandler.handleFailure(ExecutionFailureHandler.java:138)\n\tat org.apache.flink.runtime.executiongraph.failover.flip1.ExecutionFailureHandler.getFailureHandlingResult(ExecutionFailureHandler.java:82)\n\tat org.apache.flink.runtime.scheduler.DefaultScheduler.handleTaskFailure(DefaultScheduler.java:207)\n\tat org.apache.flink.runtime.scheduler.DefaultScheduler.maybeHandleTaskFailure(DefaultScheduler.java:197)\n\tat org.apache.flink.runtime.scheduler.DefaultScheduler.updateTaskExecutionStateInternal(DefaultScheduler.java:188)\n\tat org.apache.flink.runtime.scheduler.SchedulerBase.updateTaskExecutionState(SchedulerBase.java:677)\n\tat org.apache.flink.runtime.scheduler.SchedulerNG.updateTaskExecutionState(SchedulerNG.java:79)\n\tat org.apache.flink.runtime.jobmaster.JobMaster.updateTaskExecutionState(JobMaster.java:435)\n\tat sun.reflect.GeneratedMethodAccessor448.invoke(Unknown Source)\n\tat sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)\n\tat java.lang.reflect.Method.invoke(Method.java:498)\n\tat org.apache.flink.runtime.rpc.akka.AkkaRpcActor.handleRpcInvocation(AkkaRpcActor.java:305)\n\tat org.apache.flink.runtime.rpc.akka.AkkaRpcActor.handleRpcMessage(AkkaRpcActor.java:212)\n\tat org.apache.flink.runtime.rpc.akka.FencedAkkaRpcActor.handleRpcMessage(FencedAkkaRpcActor.java:77)\n\tat org.apache.flink.runtime.rpc.akka.AkkaRpcActor.handleMessage(AkkaRpcActor.java:158)\n\tat akka.japi.pf.UnitCaseStatement.apply(CaseStatements.scala:26)\n\tat akka.japi.pf.UnitCaseStatement.apply(CaseStatements.scala:21)\n\tat scala.PartialFunction.applyOrElse(PartialFunction.scala:123)\n\tat scala.PartialFunction.applyOrElse$(PartialFunction.scala:122)\n\tat akka.japi.pf.UnitCaseStatement.applyOrElse(CaseStatements.scala:21)\n\tat scala.PartialFunction$OrElse.applyOrElse(PartialFunction.scala:171)\n\tat scala.PartialFunction$OrElse.applyOrElse(PartialFunction.scala:172)\n\tat scala.PartialFunction$OrElse.applyOrElse(PartialFunction.scala:172)\n\tat akka.actor.Actor.aroundReceive(Actor.scala:517)\n\tat akka.actor.Actor.aroundReceive$(Actor.scala:515)\n\tat akka.actor.AbstractActor.aroundReceive(AbstractActor.scala:225)\n\tat akka.actor.ActorCell.receiveMessage(ActorCell.scala:592)\n\tat akka.actor.ActorCell.invoke(ActorCell.scala:561)\n\tat akka.dispatch.Mailbox.processMailbox(Mailbox.scala:258)\n\tat akka.dispatch.Mailbox.run(Mailbox.scala:225)\n\tat akka.dispatch.Mailbox.exec(Mailbox.scala:235)\n\tat akka.dispatch.forkjoin.ForkJoinTask.doExec(ForkJoinTask.java:260)\n\tat akka.dispatch.forkjoin.ForkJoinPool$WorkQueue.runTask(ForkJoinPool.java:1339)\n\tat akka.dispatch.forkjoin.ForkJoinPool.runWorker(ForkJoinPool.java:1979)\n\tat akka.dispatch.forkjoin.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:107)\nCaused by: java.lang.IllegalArgumentException\n\tat org.apache.flink.util.Preconditions.checkArgument(Preconditions.java:122)\n\tat org.apache.flink.streaming.api.functions.source.datagen.SequenceGenerator.safeDivide(SequenceGenerator.java:117)\n\tat org.apache.flink.streaming.api.functions.source.datagen.SequenceGenerator.open(SequenceGenerator.java:87)\n\tat org.apache.flink.table.factories.datagen.types.RowDataGenerator.open(RowDataGenerator.java:48)\n\tat org.apache.flink.streaming.api.functions.source.datagen.DataGeneratorSource.initializeState(DataGeneratorSource.java:95)\n\tat org.apache.flink.streaming.util.functions.StreamingFunctionUtils.tryRestoreFunction(StreamingFunctionUtils.java:189)\n\tat org.apache.flink.streaming.util.functions.StreamingFunctionUtils.restoreFunctionState(StreamingFunctionUtils.java:171)\n\tat org.apache.flink.streaming.api.operators.AbstractUdfStreamOperator.initializeState(AbstractUdfStreamOperator.java:96)\n\tat org.apache.flink.streaming.api.operators.StreamOperatorStateHandler.initializeOperatorState(StreamOperatorStateHandler.java:118)\n\tat org.apache.flink.streaming.api.operators.AbstractStreamOperator.initializeState(AbstractStreamOperator.java:290)\n\tat org.apache.flink.streaming.runtime.tasks.OperatorChain.initializeStateAndOpenOperators(OperatorChain.java:436)\n\tat org.apache.flink.streaming.runtime.tasks.StreamTask.restoreGates(StreamTask.java:582)\n\tat org.apache.flink.streaming.runtime.tasks.StreamTaskActionExecutor$SynchronizedStreamTaskActionExecutor.call(StreamTaskActionExecutor.java:100)\n\tat org.apache.flink.streaming.runtime.tasks.StreamTask.executeRestore(StreamTask.java:562)\n\tat org.apache.flink.streaming.runtime.tasks.StreamTask.runWithCleanUpOnFail(StreamTask.java:647)\n\tat org.apache.flink.streaming.runtime.tasks.StreamTask.restore(StreamTask.java:537)\n\tat org.apache.flink.runtime.taskmanager.Task.doRun(Task.java:759)\n\tat org.apache.flink.runtime.taskmanager.Task.run(Task.java:566)\n\tat java.lang.Thread.run(Thread.java:748)\n\n"
+     }
+    ]
+   }
+  },
+  {
+   "settings": {
+    "params": {},
+    "forms": {}
+   },
+   "apps": [],
+   "status": "ERROR",
+   "text": "%flink.ssql(type=update)\nselect * from sink_kafka order by id desc limit 10;",
+   "id": "",
+   "dateCreated": "2023-01-06 15:08:52.247",
+   "config": {
+    "title": true
+   },
+   "title": "预览数据",
+   "dateStarted": "2023-01-06 15:35:13.023",
+   "dateUpdated": "2023-01-06 15:35:31.676",
+   "results": {
+    "code": "ERROR",
+    "msg": [
+     {
+      "type": "TABLE",
+      "data": "id\tpt\tauthor\ttitle\tcontent\tnum_like\n"
+     },
+     {
+      "type": "TEXT",
+      "data": "Fail to run sql command: select * from sink_kafka order by id desc limit 10\njava.io.IOException: Fail to run stream sql job\n\tat org.apache.zeppelin.flink.sql.AbstractStreamSqlJob.run(AbstractStreamSqlJob.java:177)\n\tat org.apache.zeppelin.flink.sql.AbstractStreamSqlJob.run(AbstractStreamSqlJob.java:109)\n\tat org.apache.zeppelin.flink.FlinkStreamSqlInterpreter.callInnerSelect(FlinkStreamSqlInterpreter.java:86)\n\tat org.apache.zeppelin.flink.FlinkSqlInterpreter.callSelect(FlinkSqlInterpreter.java:494)\n\tat org.apache.zeppelin.flink.FlinkSqlInterpreter.callCommand(FlinkSqlInterpreter.java:257)\n\tat org.apache.zeppelin.flink.FlinkSqlInterpreter.runSqlList(FlinkSqlInterpreter.java:151)\n\tat org.apache.zeppelin.flink.FlinkSqlInterpreter.internalInterpret(FlinkSqlInterpreter.java:109)\n\tat org.apache.zeppelin.interpreter.AbstractInterpreter.interpret(AbstractInterpreter.java:55)\n\tat org.apache.zeppelin.interpreter.LazyOpenInterpreter.interpret(LazyOpenInterpreter.java:110)\n\tat org.apache.zeppelin.interpreter.remote.RemoteInterpreterServer$InterpretJob.jobRun(RemoteInterpreterServer.java:860)\n\tat org.apache.zeppelin.interpreter.remote.RemoteInterpreterServer$InterpretJob.jobRun(RemoteInterpreterServer.java:752)\n\tat org.apache.zeppelin.scheduler.Job.run(Job.java:172)\n\tat org.apache.zeppelin.scheduler.AbstractScheduler.runJob(AbstractScheduler.java:132)\n\tat org.apache.zeppelin.scheduler.ParallelScheduler.lambda$runJobInScheduler$0(ParallelScheduler.java:46)\n\tat java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)\n\tat java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)\n\tat java.lang.Thread.run(Thread.java:748)\nCaused by: org.apache.flink.client.program.ProgramInvocationException: Job failed (JobID: def19176c87b451eff4ae3fe7b85b42d)\n\tat org.apache.flink.client.deployment.ClusterClientJobClientAdapter.lambda$null$6(ClusterClientJobClientAdapter.java:125)\n\tat java.util.concurrent.CompletableFuture.uniApply(CompletableFuture.java:616)\n\tat java.util.concurrent.CompletableFuture$UniApply.tryFire(CompletableFuture.java:591)\n\tat java.util.concurrent.CompletableFuture.postComplete(CompletableFuture.java:488)\n\tat java.util.concurrent.CompletableFuture.complete(CompletableFuture.java:1975)\n\tat org.apache.flink.runtime.concurrent.FutureUtils.lambda$retryOperationWithDelay$9(FutureUtils.java:394)\n\tat java.util.concurrent.CompletableFuture.uniWhenComplete(CompletableFuture.java:774)\n\tat java.util.concurrent.CompletableFuture$UniWhenComplete.tryFire(CompletableFuture.java:750)\n\tat java.util.concurrent.CompletableFuture.postComplete(CompletableFuture.java:488)\n\tat java.util.concurrent.CompletableFuture.complete(CompletableFuture.java:1975)\n\tat org.apache.flink.client.program.rest.RestClusterClient.lambda$pollResourceAsync$24(RestClusterClient.java:670)\n\tat java.util.concurrent.CompletableFuture.uniWhenComplete(CompletableFuture.java:774)\n\tat java.util.concurrent.CompletableFuture$UniWhenComplete.tryFire(CompletableFuture.java:750)\n\tat java.util.concurrent.CompletableFuture.postComplete(CompletableFuture.java:488)\n\tat java.util.concurrent.CompletableFuture.complete(CompletableFuture.java:1975)\n\tat org.apache.flink.runtime.concurrent.FutureUtils.lambda$retryOperationWithDelay$9(FutureUtils.java:394)\n\tat java.util.concurrent.CompletableFuture.uniWhenComplete(CompletableFuture.java:774)\n\tat java.util.concurrent.CompletableFuture$UniWhenComplete.tryFire(CompletableFuture.java:750)\n\tat java.util.concurrent.CompletableFuture.postComplete(CompletableFuture.java:488)\n\tat java.util.concurrent.CompletableFuture.postFire(CompletableFuture.java:575)\n\tat java.util.concurrent.CompletableFuture$UniCompose.tryFire(CompletableFuture.java:943)\n\tat java.util.concurrent.CompletableFuture$Completion.run(CompletableFuture.java:456)\n\t... 3 more\nCaused by: org.apache.flink.runtime.client.JobExecutionException: Job execution failed.\n\tat org.apache.flink.runtime.jobmaster.JobResult.toJobExecutionResult(JobResult.java:144)\n\tat org.apache.flink.client.deployment.ClusterClientJobClientAdapter.lambda$null$6(ClusterClientJobClientAdapter.java:123)\n\t... 24 more\nCaused by: org.apache.flink.runtime.JobException: Recovery is suppressed by NoRestartBackoffTimeStrategy\n\tat org.apache.flink.runtime.executiongraph.failover.flip1.ExecutionFailureHandler.handleFailure(ExecutionFailureHandler.java:138)\n\tat org.apache.flink.runtime.executiongraph.failover.flip1.ExecutionFailureHandler.getFailureHandlingResult(ExecutionFailureHandler.java:82)\n\tat org.apache.flink.runtime.scheduler.DefaultScheduler.handleTaskFailure(DefaultScheduler.java:207)\n\tat org.apache.flink.runtime.scheduler.DefaultScheduler.maybeHandleTaskFailure(DefaultScheduler.java:197)\n\tat org.apache.flink.runtime.scheduler.DefaultScheduler.updateTaskExecutionStateInternal(DefaultScheduler.java:188)\n\tat org.apache.flink.runtime.scheduler.SchedulerBase.updateTaskExecutionState(SchedulerBase.java:677)\n\tat org.apache.flink.runtime.scheduler.SchedulerNG.updateTaskExecutionState(SchedulerNG.java:79)\n\tat org.apache.flink.runtime.jobmaster.JobMaster.updateTaskExecutionState(JobMaster.java:435)\n\tat sun.reflect.GeneratedMethodAccessor448.invoke(Unknown Source)\n\tat sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)\n\tat java.lang.reflect.Method.invoke(Method.java:498)\n\tat org.apache.flink.runtime.rpc.akka.AkkaRpcActor.handleRpcInvocation(AkkaRpcActor.java:305)\n\tat org.apache.flink.runtime.rpc.akka.AkkaRpcActor.handleRpcMessage(AkkaRpcActor.java:212)\n\tat org.apache.flink.runtime.rpc.akka.FencedAkkaRpcActor.handleRpcMessage(FencedAkkaRpcActor.java:77)\n\tat org.apache.flink.runtime.rpc.akka.AkkaRpcActor.handleMessage(AkkaRpcActor.java:158)\n\tat akka.japi.pf.UnitCaseStatement.apply(CaseStatements.scala:26)\n\tat akka.japi.pf.UnitCaseStatement.apply(CaseStatements.scala:21)\n\tat scala.PartialFunction.applyOrElse(PartialFunction.scala:123)\n\tat scala.PartialFunction.applyOrElse$(PartialFunction.scala:122)\n\tat akka.japi.pf.UnitCaseStatement.applyOrElse(CaseStatements.scala:21)\n\tat scala.PartialFunction$OrElse.applyOrElse(PartialFunction.scala:171)\n\tat scala.PartialFunction$OrElse.applyOrElse(PartialFunction.scala:172)\n\tat scala.PartialFunction$OrElse.applyOrElse(PartialFunction.scala:172)\n\tat akka.actor.Actor.aroundReceive(Actor.scala:517)\n\tat akka.actor.Actor.aroundReceive$(Actor.scala:515)\n\tat akka.actor.AbstractActor.aroundReceive(AbstractActor.scala:225)\n\tat akka.actor.ActorCell.receiveMessage(ActorCell.scala:592)\n\tat akka.actor.ActorCell.invoke(ActorCell.scala:561)\n\tat akka.dispatch.Mailbox.processMailbox(Mailbox.scala:258)\n\tat akka.dispatch.Mailbox.run(Mailbox.scala:225)\n\tat akka.dispatch.Mailbox.exec(Mailbox.scala:235)\n\tat akka.dispatch.forkjoin.ForkJoinTask.doExec(ForkJoinTask.java:260)\n\tat akka.dispatch.forkjoin.ForkJoinPool$WorkQueue.runTask(ForkJoinPool.java:1339)\n\tat akka.dispatch.forkjoin.ForkJoinPool.runWorker(ForkJoinPool.java:1979)\n\tat akka.dispatch.forkjoin.ForkJoinWorkerThread.run(ForkJoinWorkerThread.java:107)\nCaused by: org.apache.kafka.common.config.ConfigException: Invalid value org.apache.flink.kafka.shaded.org.apache.kafka.common.serialization.ByteArrayDeserializer for configuration key.deserializer: Class org.apache.flink.kafka.shaded.org.apache.kafka.common.serialization.ByteArrayDeserializer could not be found.\n\tat org.apache.kafka.common.config.ConfigDef.parseType(ConfigDef.java:728)\n\tat org.apache.kafka.common.config.ConfigDef.parseValue(ConfigDef.java:474)\n\tat org.apache.kafka.common.config.ConfigDef.parse(ConfigDef.java:467)\n\tat org.apache.kafka.common.config.AbstractConfig.<init>(AbstractConfig.java:108)\n\tat org.apache.kafka.common.config.AbstractConfig.<init>(AbstractConfig.java:129)\n\tat org.apache.kafka.clients.consumer.ConsumerConfig.<init>(ConsumerConfig.java:539)\n\tat org.apache.kafka.clients.consumer.KafkaConsumer.<init>(KafkaConsumer.java:666)\n\tat org.apache.kafka.clients.consumer.KafkaConsumer.<init>(KafkaConsumer.java:646)\n\tat org.apache.flink.streaming.connectors.kafka.internals.KafkaPartitionDiscoverer.initializeConnections(KafkaPartitionDiscoverer.java:55)\n\tat org.apache.flink.streaming.connectors.kafka.internals.AbstractPartitionDiscoverer.open(AbstractPartitionDiscoverer.java:94)\n\tat org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumerBase.open(FlinkKafkaConsumerBase.java:574)\n\tat org.apache.flink.api.common.functions.util.FunctionUtils.openFunction(FunctionUtils.java:34)\n\tat org.apache.flink.streaming.api.operators.AbstractUdfStreamOperator.open(AbstractUdfStreamOperator.java:102)\n\tat org.apache.flink.streaming.runtime.tasks.OperatorChain.initializeStateAndOpenOperators(OperatorChain.java:437)\n\tat org.apache.flink.streaming.runtime.tasks.StreamTask.restoreGates(StreamTask.java:582)\n\tat org.apache.flink.streaming.runtime.tasks.StreamTaskActionExecutor$SynchronizedStreamTaskActionExecutor.call(StreamTaskActionExecutor.java:100)\n\tat org.apache.flink.streaming.runtime.tasks.StreamTask.executeRestore(StreamTask.java:562)\n\tat org.apache.flink.streaming.runtime.tasks.StreamTask.runWithCleanUpOnFail(StreamTask.java:647)\n\tat org.apache.flink.streaming.runtime.tasks.StreamTask.restore(StreamTask.java:537)\n\tat org.apache.flink.runtime.taskmanager.Task.doRun(Task.java:759)\n\tat org.apache.flink.runtime.taskmanager.Task.run(Task.java:566)\n\tat java.lang.Thread.run(Thread.java:748)\n\n"
+     }
+    ]
+   },
+   "dateFinished": "2023-01-06 15:35:31.676"
+  }
+ ],
+ "name": "Zeppelin Notebook",
+ "id": "",
+ "noteParams": {},
+ "noteForms": {},
+ "angularObjects": {
+  "flink-shared_process": [
+   {
+    "name": "duration",
+    "object": "2 seconds",
+    "noteId": "2HNH536HC",
+    "paragraphId": "paragraph_1672990463486_393780062"
+   },
+   {
+    "name": "duration",
+    "object": "3 seconds",
+    "noteId": "2HNH536HC",
+    "paragraphId": "paragraph_1672990463486_393780062"
+   },
+   {
+    "name": "duration",
+    "object": "4 seconds",
+    "noteId": "2HNH536HC",
+    "paragraphId": "paragraph_1672990463486_393780062"
+   },
+   {
+    "name": "duration",
+    "object": "5 seconds",
+    "noteId": "2HNH536HC",
+    "paragraphId": "paragraph_1672990463486_393780062"
+   },
+   {
+    "name": "duration",
+    "object": "6 seconds",
+    "noteId": "2HNH536HC",
+    "paragraphId": "paragraph_1672990463486_393780062"
+   },
+   {
+    "name": "duration",
+    "object": "7 seconds",
+    "noteId": "2HNH536HC",
+    "paragraphId": "paragraph_1672990463486_393780062"
+   },
+   {
+    "name": "duration",
+    "object": "8 seconds",
+    "noteId": "2HNH536HC",
+    "paragraphId": "paragraph_1672990463486_393780062"
+   },
+   {
+    "name": "duration",
+    "object": "9 seconds",
+    "noteId": "2HNH536HC",
+    "paragraphId": "paragraph_1672990463486_393780062"
+   },
+   {
+    "name": "duration",
+    "object": "10 seconds",
+    "noteId": "2HNH536HC",
+    "paragraphId": "paragraph_1672990463486_393780062"
+   },
+   {
+    "name": "duration",
+    "object": "11 seconds",
+    "noteId": "2HNH536HC",
+    "paragraphId": "paragraph_1672990463486_393780062"
+   },
+   {
+    "name": "duration",
+    "object": "36 seconds",
+    "noteId": "2HNH536HC",
+    "paragraphId": "paragraph_1672990463486_393780062"
+   },
+   {
+    "name": "duration",
+    "object": "37 seconds",
+    "noteId": "2HNH536HC",
+    "paragraphId": "paragraph_1672990463486_393780062"
+   },
+   {
+    "name": "duration",
+    "object": "38 seconds",
+    "noteId": "2HNH536HC",
+    "paragraphId": "paragraph_1672990463486_393780062"
+   }
+  ]
+ },
+ "config": {
+  "isZeppelinNotebookCronEnable": false,
+  "looknfeel": "default",
+  "personalizedMode": "false"
+ },
+ "info": {}
+}
