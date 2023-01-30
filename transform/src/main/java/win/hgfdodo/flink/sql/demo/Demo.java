@@ -7,7 +7,7 @@ import org.apache.flink.table.api.TableEnvironment;
 
 import static org.apache.flink.table.api.Expressions.$;
 
-public class App {
+public class Demo {
   public static void main(String[] args) {
     EnvironmentSettings envSettings = EnvironmentSettings.newInstance().inBatchMode().build();
     TableEnvironment tableEnvironment = TableEnvironment.create(envSettings);

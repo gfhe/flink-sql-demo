@@ -4,7 +4,7 @@ import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.Table;
 import org.apache.flink.table.api.TableEnvironment;
 
-public class BillionData {
+public class BatchBillionData {
   public static void main(String[] args) {
     EnvironmentSettings envSettings = EnvironmentSettings.newInstance().inBatchMode().build();
     TableEnvironment tableEnvironment = TableEnvironment.create(envSettings);

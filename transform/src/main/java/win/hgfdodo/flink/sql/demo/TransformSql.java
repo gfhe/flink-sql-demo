@@ -3,6 +3,12 @@ package win.hgfdodo.flink.sql.demo;
 public class TransformSql {
   public final static String TOPN_TOKEN = "_TOPN_TOKEN";
 
+  public static final String DEFAULT_SELECT = "select * from _TABLE_NAME_TOKEN";
+
+  public static String selectAll(String tableName) {
+    return DEFAULT_SELECT.replace(SourceAndSinkSql.TABLE_NAME_TOKEN, tableName);
+  }
+
   // -------------------------------- TopN -----------------------------------
 
   public static final String topN =
@@ -23,6 +29,7 @@ public class TransformSql {
           "        ) as rownum" +
           "    FROM TABLE( TUMBLE(TABLE _TABLE_NAME_TOKEN, DESCRIPTOR(pt), INTERVAL '1' DAYS))" +
           ") where rownum <=_TOPN_TOKEN \n";
+
 
   /**
    * 所有数据的 topN

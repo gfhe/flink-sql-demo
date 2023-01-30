@@ -3,7 +3,20 @@ package win.hgfdodo.flink.sql.demo;
 public class SourceAndSinkSql {
   public final static String TABLE_NAME_TOKEN = "_TABLE_NAME_TOKEN";
 
-  public final static String deleteIfExistsTable(String tableName) {
+  public final static String SINK_TO_TABLE_TAMPLATE = "INSERT INTO %s %s";
+
+  /**
+   * 获取基于transform 的sink sql
+   *
+   * @param transformSQL transform sql
+   * @param sinkTableName sink to this table
+   * @return sink sql
+   */
+  public static String sinkSQLFromTransform(String transformSQL, String sinkTableName) {
+    return String.format(SINK_TO_TABLE_TAMPLATE, sinkTableName, transformSQL);
+  }
+
+  public final static String dropIfExistsTable(String tableName) {
     return "DROP TABLE IF EXISTS _TABLE_NAME_TOKEN"
         .replace(TABLE_NAME_TOKEN, tableName);
   }
@@ -16,7 +29,8 @@ public class SourceAndSinkSql {
   // -------------------------------- Generate -----------------------------------
   public final static String TOTAL_ROWS_TOKEN = "_TOTAL_ROWS_TOKEN";
   public final static String ROWS_PER_SECOND_TOKEN = "_ROWS_PER_SECOND_TOKEN";
-  public final static String SOURCE_OF_GENERATE =
+  public final static String DATA_DURATION_TOKEN_MS = "_DATA_DURATION_TOKEN";
+  public final static String DDL_OF_GENERATE_SOURCE =
       "create table _TABLE_NAME_TOKEN(\n" +
           "    id  BIGINT PRIMARY KEY,\n" +
           "    pt  TIMESTAMP(3),\n" +
@@ -27,10 +41,11 @@ public class SourceAndSinkSql {
           ") WITH (\n" +
           "    'connector' = 'datagen',\n" +
           "    'number-of-rows' = '_TOTAL_ROWS_TOKEN',\n" +
-          "    'rows-per-second' = 'ROWS_PER_SECOND_TOKEN',\n" +
+          "    'rows-per-second' = '_ROWS_PER_SECOND_TOKEN',\n" +
           "    'fields.id.kind' = 'sequence',\n" +
           "    'fields.id.start' = '1',\n" +
           "    'fields.id.end' = '_TOTAL_ROWS_TOKEN',\n" +
+          "    'fields.pt.max-past' = '_DATA_DURATION_TOKEN',\n" +
           "    'fields.author.first_name.length' = '2',\n" +
           "    'fields.author.last_name.length'='2',\n" +
           "    'fields.title.length' = '50',\n" +
@@ -39,9 +54,10 @@ public class SourceAndSinkSql {
           "    'fields.num_like.max' = '10000'\n" +
           ")";
 
-  public static String generateSourceSQL(long numberOfRows, long rowPerSecond) {
-    return SOURCE_OF_GENERATE.replaceAll(TOTAL_ROWS_TOKEN, String.valueOf(numberOfRows))
-        .replaceAll(ROWS_PER_SECOND_TOKEN, String.valueOf(rowPerSecond));
+  public static String generateSourceDDL(long numberOfRows, long rowsPerSecond, long maxPathMs) {
+    return DDL_OF_GENERATE_SOURCE.replaceAll(TOTAL_ROWS_TOKEN, String.valueOf(numberOfRows))
+        .replaceAll(ROWS_PER_SECOND_TOKEN, String.valueOf(rowsPerSecond))
+        .replace(DATA_DURATION_TOKEN_MS, String.valueOf(maxPathMs));
   }
 
   // -------------------------------- Kafka -----------------------------------
@@ -50,7 +66,7 @@ public class SourceAndSinkSql {
   public final static String KAFKA_PARALLELISM_TOKEN = "_KAFKA_PARALLELISM_TOKEN";
   public final static String KAFKA_GROUP_ID_TOKEN = "_KAFKA_GROUP_ID_TOKEN";
 
-  public final static String SINK_TO_KAFKA =
+  public final static String DDL_OF_KAFKA_SINK =
       "create table _TABLE_NAME_TOKEN(\n" +
           "    id  BIGINT,\n" +
           "    pt  TIMESTAMP(3),\n" +
@@ -74,7 +90,7 @@ public class SourceAndSinkSql {
 //            "    'properties.sasl.mechanism' = 'SCRAM-SHA-256',\n" + //包括PLAIN, SCRAM-SHA-256
 //            "    'properties.sasl.jaas.config' = 'org.apache.kafka.common.security.scram.ScramLoginModule required username=\"z9xr2z4d\" password=\"xCPe0b4A5YUAyG_cqr81iSlHRQVvs6Cp\";'" +
           ")";
-  public final static String SOURCE_OF_KAFKA =
+  public final static String DDL_OF_KAFKA_SOURCE =
       "create table _TABLE_NAME_TOKEN(\n" +
           "    id  BIGINT,\n" +
           "    pt  TIMESTAMP(3),\n" +
@@ -104,14 +120,14 @@ public class SourceAndSinkSql {
 //            "    'properties.sasl.jaas.config' = 'org.apache.kafka.common.security.scram.ScramLoginModule required username=\"z9xr2z4d\" password=\"xCPe0b4A5YUAyG_cqr81iSlHRQVvs6Cp\";'" +
           ")";
 
-  public static String kafkaSourceSQL(String bootstrapServer, String topics, String groupId) {
-    return SOURCE_OF_KAFKA.replace(KAFKA_BROKER_TOKEN, bootstrapServer)
+  public static String kafkaSourceDDL(String bootstrapServer, String topics, String groupId) {
+    return DDL_OF_KAFKA_SOURCE.replace(KAFKA_BROKER_TOKEN, bootstrapServer)
         .replace(KAFKA_TOPIC_TOKEN, topics)
         .replace(KAFKA_GROUP_ID_TOKEN, groupId);
   }
 
-  public static String kafkaSinkSQL(String bootstrapServer, String topic, int parallelism) {
-    return SOURCE_OF_KAFKA.replace(KAFKA_BROKER_TOKEN, bootstrapServer)
+  public static String kafkaSinkDDL(String bootstrapServer, String topic, int parallelism) {
+    return DDL_OF_KAFKA_SOURCE.replace(KAFKA_BROKER_TOKEN, bootstrapServer)
         .replace(KAFKA_TOPIC_TOKEN, topic)
         .replace(KAFKA_PARALLELISM_TOKEN, String.valueOf(parallelism));
   }
