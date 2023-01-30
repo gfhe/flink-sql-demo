@@ -47,12 +47,3 @@ services:
       HOSTNAME_COMMAND: "route -n | awk '/UG[ \t]/{print $$2}'"
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
       KAFKA_CREATE_TOPICS: "kafka:1:1"
-  datagen:
-    image: datagen
-    build: .
-    depends_on:
-      - taskmanager
-      - jobmanager
-      - kafka
-    command:
-      -
