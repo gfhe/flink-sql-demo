@@ -2,6 +2,7 @@ version: "2.2"
 services:
   jobmanager:
     image: flink:latest
+    build: .
     ports:
       - "8081:8081"
     command: standalone-job
@@ -12,6 +13,7 @@ services:
 
   taskmanager:
     image: flink:latest
+    build: .
     depends_on:
       - jobmanager
     command: taskmanager

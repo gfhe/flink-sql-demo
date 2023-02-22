@@ -12,22 +12,23 @@ public class TransformSql {
   // -------------------------------- TopN -----------------------------------
 
   public static final String topN =
-      "select id, author, num_like " +
-          "FROM (" +
-          "    select id, author, num_like," +
-          "        ROW_NUMBER() over (" +
-          "            order by num_like desc" +
-          "        ) as rownum" +
-          "    FROM _TABLE_NAME_TOKEN" +
+      "select id, author.first_name as first_name, author.last_name as last_name, num_like \n" +
+          "FROM ( \n" +
+          "    select id, author, num_like, \n" +
+          "        ROW_NUMBER() over ( \n" +
+          "            order by num_like desc \n" +
+          "        ) as rownum \n" +
+          "    FROM _TABLE_NAME_TOKEN \n" +
           ") where rownum <= _TOPN_TOKEN \n";
+
   public static final String topNInWindow =
-      "select id, author, num_like " +
-          "FROM (" +
-          "    select id, author, num_like," +
-          "        ROW_NUMBER() over (" +
-          "            order by num_like desc" +
-          "        ) as rownum" +
-          "    FROM TABLE( TUMBLE(TABLE _TABLE_NAME_TOKEN, DESCRIPTOR(pt), INTERVAL '1' DAYS))" +
+      "select id, author.first_name as first_name, author.last_name as last_name, num_like, pt, window_start, window_end \n" +
+          "FROM (\n" +
+          "    select id, author, num_like, pt, window_start, window_end,\n" +
+          "        ROW_NUMBER() over (\n" +
+          "            partition by window_start, window_end order by num_like desc\n" +
+          "        ) as rownum\n" +
+          "    FROM TABLE( TUMBLE(TABLE _TABLE_NAME_TOKEN, DESCRIPTOR(pt), INTERVAL '1' DAYS))\n" +
           ") where rownum <=_TOPN_TOKEN \n";
 
 
@@ -39,7 +40,7 @@ public class TransformSql {
    * @return
    */
   public static String topNNumLikeArticleSQL(String table, int topn) {
-    return topN.replace(SourceAndSinkSql.TABLE_NAME_TOKEN, table)
+    return topN.replaceAll(SourceAndSinkSql.TABLE_NAME_TOKEN, table)
         .replace(TOPN_TOKEN, String.valueOf(topn));
   }
 
@@ -53,6 +54,16 @@ public class TransformSql {
   public static String topNNumLikeInWindowSQL(String table, int topn) {
     return topNInWindow.replace(SourceAndSinkSql.TABLE_NAME_TOKEN, table)
         .replace(TOPN_TOKEN, String.valueOf(topn));
+  }
+  // -------------------------------- order by -----------------------------------
+
+  public final static String ORDER_SQL =
+      "select id, pt, author, title, content, num_like \n" +
+          "from _TABLE_NAME_TOKEN \n" +
+          "order by pt asc \n";
+
+  public static String orderByPt(String table) {
+    return ORDER_SQL.replace(SourceAndSinkSql.TABLE_NAME_TOKEN, table);
   }
 
 

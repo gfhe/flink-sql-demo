@@ -2,13 +2,14 @@ package win.hgfdodo.flink.sql.demo;
 
 public class SourceAndSinkSql {
   public final static String TABLE_NAME_TOKEN = "_TABLE_NAME_TOKEN";
+  public final static String WATERMARK_TOKEN = "_WATERMARK_TOKEN";
 
   public final static String SINK_TO_TABLE_TAMPLATE = "INSERT INTO %s %s";
 
   /**
    * 获取基于transform 的sink sql
    *
-   * @param transformSQL transform sql
+   * @param transformSQL  transform sql
    * @param sinkTableName sink to this table
    * @return sink sql
    */
@@ -54,10 +55,95 @@ public class SourceAndSinkSql {
           "    'fields.num_like.max' = '10000'\n" +
           ")";
 
+  public final static String DDL_OF_GENERATE_PT_ASC_SOURCE =
+      "create table _TABLE_NAME_TOKEN(\n" +
+          "    id  BIGINT PRIMARY KEY,\n" +
+          "    pt  TIMESTAMP(3),\n" +
+          "    author  ROW<first_name STRING, last_name STRING>,\n" +
+          "    title   STRING,\n" +
+          "    content STRING,\n" +
+          "    num_like    BIGINT\n" +
+          ") WITH (\n" +
+          "    'connector' = 'datagen',\n" +
+          "    'number-of-rows' = '_TOTAL_ROWS_TOKEN',\n" +
+          "    'rows-per-second' = '_ROWS_PER_SECOND_TOKEN',\n" +
+          "    'fields.id.kind' = 'sequence',\n" +
+          "    'fields.id.start' = '1',\n" +
+          "    'fields.id.end' = '_TOTAL_ROWS_TOKEN',\n" +
+          "    'fields.pt.max-past' = '_DATA_DURATION_TOKEN',\n" +
+          "    'fields.author.first_name.length' = '2',\n" +
+          "    'fields.author.last_name.length'='2',\n" +
+          "    'fields.title.length' = '50',\n" +
+          "    'fields.content.length' = '5000',\n" +
+          "    'fields.num_like.min' = '0',\n" +
+          "    'fields.num_like.max' = '10000'\n" +
+          ")";
+
   public static String generateSourceDDL(long numberOfRows, long rowsPerSecond, long maxPathMs) {
     return DDL_OF_GENERATE_SOURCE.replaceAll(TOTAL_ROWS_TOKEN, String.valueOf(numberOfRows))
         .replaceAll(ROWS_PER_SECOND_TOKEN, String.valueOf(rowsPerSecond))
         .replace(DATA_DURATION_TOKEN_MS, String.valueOf(maxPathMs));
+  }
+
+  // -------------------------------- CSV  -----------------------------------
+  public final static String DDL_OF_CSV_FILE =
+      "create table _TABLE_NAME_TOKEN(\n" +
+          "    id  BIGINT,\n" +
+          "    author  ROW<first_name STRING, last_name STRING>,\n" +
+          "    num_like    BIGINT\n" +
+          ") WITH (\n" +
+          "    'connector' = 'filesystem',\n" +
+          "    'path' = 'file:///tmp/test',\n" +
+          "    'format' = 'csv'\n" +
+          ")";
+
+  public final static String csvSinkDDL() {
+    return DDL_OF_CSV_FILE;
+  }
+
+  // -------------------------------- JDBC  -----------------------------------
+
+  public final static String JDBC_TABLE_NAME = "_JDBC_TABLE_NAME";
+
+  public final static String DDL_OF_JDBC =
+      "create table _TABLE_NAME_TOKEN(\n" +
+          "    id  BIGINT,\n" +
+          "    first_name STRING,\n" +
+          "    last_name STRING,\n" +
+          "    num_like    BIGINT," +
+          "    PRIMARY KEY (id) NOT ENFORCED\n" +
+          ") WITH (\n" +
+          "    'connector' = 'jdbc',\n" +
+          "    'url' = 'jdbc:mysql://10.208.63.130:30201/sink?encoding=UTF-8',\n" +
+          "    'driver' = 'com.mysql.jdbc.Driver',\n" +
+          "    'username' = 'root',\n" +
+          "    'password' = 'changeme',\n" +
+          "    'table-name' = '_JDBC_TABLE_NAME'\n" +
+          ")";
+  public final static String DDL_OF_JDBC_WINDOW =
+      "create table _TABLE_NAME_TOKEN(\n" +
+          "    id  BIGINT,\n" +
+          "    first_name STRING,\n" +
+          "    last_name STRING,\n" +
+          "    num_like    BIGINT," +
+          "    pt    TIMESTAMP," +
+          "    window_start TIMESTAMP," +
+          "    window_end   TIMESTAMP," +
+          "    PRIMARY KEY (id) NOT ENFORCED\n" +
+          ") WITH (\n" +
+          "    'connector' = 'jdbc',\n" +
+          "    'url' = 'jdbc:mysql://10.208.63.130:30201/sink?encoding=UTF-8',\n" +
+          "    'driver' = 'com.mysql.jdbc.Driver',\n" +
+          "    'username' = 'root',\n" +
+          "    'password' = 'changeme',\n" +
+          "    'table-name' = '_JDBC_TABLE_NAME'\n" +
+          ")";
+
+  public final static String jdbcSinkDDL(String jdbcTable) {
+    return DDL_OF_JDBC.replace(JDBC_TABLE_NAME, jdbcTable);
+  }
+  public final static String jdbcSinkDDLWindow(String jdbcTable) {
+    return DDL_OF_JDBC_WINDOW.replace(JDBC_TABLE_NAME, jdbcTable);
   }
 
   // -------------------------------- Kafka -----------------------------------
@@ -98,6 +184,7 @@ public class SourceAndSinkSql {
           "    title   STRING,\n" +
           "    content STRING,\n" +
           "    num_like    BIGINT\n" +
+          "    _WATERMARK_TOKEN\n" +
           ") WITH (\n" +
           "    'connector' = 'kafka',\n" +
           "    'topic' = '_KAFKA_TOPIC_TOKEN',\n" +
@@ -123,12 +210,14 @@ public class SourceAndSinkSql {
   public static String kafkaSourceDDL(String bootstrapServer, String topics, String groupId) {
     return DDL_OF_KAFKA_SOURCE.replace(KAFKA_BROKER_TOKEN, bootstrapServer)
         .replace(KAFKA_TOPIC_TOKEN, topics)
-        .replace(KAFKA_GROUP_ID_TOKEN, groupId);
+        .replace(KAFKA_GROUP_ID_TOKEN, groupId)
+        .replace(WATERMARK_TOKEN, ", WATERMARK FOR pt as pt - INTERVAL '1' DAYS \n");
   }
 
   public static String kafkaSinkDDL(String bootstrapServer, String topic, int parallelism) {
-    return DDL_OF_KAFKA_SOURCE.replace(KAFKA_BROKER_TOKEN, bootstrapServer)
+    return DDL_OF_KAFKA_SINK.replace(KAFKA_BROKER_TOKEN, bootstrapServer)
         .replace(KAFKA_TOPIC_TOKEN, topic)
+        .replace(WATERMARK_TOKEN, "")
         .replace(KAFKA_PARALLELISM_TOKEN, String.valueOf(parallelism));
   }
 
